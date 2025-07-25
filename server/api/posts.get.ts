@@ -15,6 +15,6 @@ const QUERY = gql`
 `
 
 export default defineEventHandler(async () => {
-  const endpoint = useRuntimeConfig().public.wpGraphqlEndpoint
+  const endpoint = useRuntimeConfig().public.wpGraphQLEndpoint
   return request(endpoint, QUERY)
 })
