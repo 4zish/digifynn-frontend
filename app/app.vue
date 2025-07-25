@@ -1,7 +1,5 @@
 <template>
   <div>
-    <TheHeader />
-
     <main class="main-content">
       <NuxtPage />
     </main>
@@ -11,7 +9,7 @@
 </template>
 
 <style>
-/* Add some global styles to prevent content from touching the header */
+/* Basic global styles */
 body {
   margin: 0;
   background-color: #f9f9f9;
