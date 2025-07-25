@@ -2,13 +2,13 @@
   <header class="main-header">
     <div class="header-container">
       <div class="header-left">
-        <button class="menu-button">
+        <button class="menu-button" @click="toggleMenu">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
         </button>
         <div class="logo">
           <NuxtLink to="/">DIGIFYNN</NuxtLink>
         </div>
-        <nav class="main-nav">
+        <nav class="main-nav" :class="{ open: isMenuOpen }">
           <NuxtLink to="/blog">Blog</NuxtLink>
           <a href="#">Reviews</a>
           <a href="#">Videos</a>
@@ -27,6 +27,13 @@
   </header>
 </template>
 
+<script setup lang="ts">
+const isMenuOpen = ref(false)
+function toggleMenu() {
+  isMenuOpen.value = !isMenuOpen.value
+}
+</script>
+
 <style scoped>
 .main-header {
   background-color: #fff;
@@ -36,6 +43,7 @@
   display: flex;
   align-items: center;
   font-family: 'Vazirmatn', sans-serif;
+  position: relative;
 }
 
 .header-container {
@@ -114,6 +122,18 @@
 @media (max-width: 768px) {
   .main-nav, .login-button {
     display: none;
+  }
+  .main-nav.open {
+    display: flex;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 16px;
+    padding: 1rem;
+    background-color: #fff;
+    border-bottom: 1px solid #e0e0e0;
   }
   .menu-button {
     display: block;
