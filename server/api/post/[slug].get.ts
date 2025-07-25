@@ -25,7 +25,7 @@ const QUERY = gql`
 
 export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')
-  const endpoint = useRuntimeConfig().public.wpGraphqlEndpoint
+  const endpoint = useRuntimeConfig().public.wpGraphQLEndpoint
   const variables = { slug }
 
   return request(endpoint, QUERY, variables)

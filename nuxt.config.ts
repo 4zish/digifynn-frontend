@@ -4,7 +4,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      wpGraphqlEndpoint: 'https://cms.digifynn.com/graphql'
+      wpGraphQLEndpoint: 'https://cms.digifynn.com/graphql'
     }
   },
 
