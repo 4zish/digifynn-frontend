@@ -1,22 +1,39 @@
 <script setup lang="ts">
-// Get the slug from the current URL
 const route = useRoute()
 const slug = route.params.slug
 
-// Fetch the data for this specific post
 const { data, pending, error } = await useFetch(`/api/post/${slug}`)
+
+// A helper to format the date
+const formattedDate = computed(() => {
+  if (data.value?.post.date) {
+    return new Date(data.value.post.date).toLocaleDateString('fa-IR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }
+  return '';
+});
 </script>
 
 <template>
   <div>
-    <div v-if="pending" class="loading">Loading article...</div>
-    <div v-else-if="error">Error loading the article.</div>
+    <div v-if="pending" class="loading">در حال بارگذاری مقاله...</div>
+    <div v-else-if="error">خطا در بارگذاری مقاله.</div>
     <article v-else-if="data?.post" class="blog-post">
       <header class="post-header">
-        <h1 v-html="data.post.title"></h1>
-        <p class="post-meta">
-          Published on: {{ new Date(data.post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}
-        </p>
+        <div class="post-meta-categories">
+          <span v-for="category in data.post.categories.nodes" :key="category.slug" class="category-tag">
+            {{ category.name }}
+          </span>
+        </div>
+        <h1 class="post-title" v-html="data.post.title"></h1>
+        <div class="post-meta">
+          <span>نویسنده: {{ data.post.author.node.name }}</span>
+          <span> | </span>
+          <span>{{ formattedDate }}</span>
+        </div>
       </header>
       <div class="post-content" v-html="data.post.content"></div>
     </article>
@@ -24,88 +41,128 @@ const { data, pending, error } = await useFetch(`/api/post/${slug}`)
 </template>
 
 <style scoped>
-/* Main font and layout for the blog post */
+/* Base styles inspired by Zoomit */
 .blog-post {
   font-family: 'Vazirmatn', sans-serif;
-  direction: rtl; /* Right-to-left for Persian content */
-  max-width: 750px; /* Max width for readability */
-  margin: 2rem auto;
-  padding: 0 1rem;
-  color: #333;
-  line-height: 1.8;
+  direction: rtl; /* Crucial for Persian content */
+  max-width: 760px;
+  margin: 32px auto;
+  padding: 0 20px;
+  color: #0c0c0c;
+  background-color: #fff;
 }
 
+.loading {
+  text-align: center;
+  padding: 50px;
+  font-family: 'Vazirmatn', sans-serif;
+}
+
+/* Header and Metadata */
 .post-header {
-  margin-bottom: 2rem;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 1.5rem;
+  margin-bottom: 32px;
 }
 
-.post-header h1 {
-  font-size: 2.5rem;
+.post-meta-categories {
+  margin-bottom: 12px;
+}
+
+.category-tag {
+  display: inline-block;
+  background-color: #f2f2f2;
+  color: #585858;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.8rem;
   font-weight: 700;
-  line-height: 1.3;
-  margin-bottom: 1rem;
+  margin-left: 8px;
+}
+
+.post-title {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #0c0c0c;
+  margin-bottom: 16px;
 }
 
 .post-meta {
-  font-size: 0.9rem;
-  color: #666;
+  font-size: 0.85rem;
+  color: #7b7b7b;
 }
 
-/* Styles for the content coming from WordPress */
+/* Main Content Typography and Elements */
 .post-content {
-  font-size: 1.125rem; /* ~18px */
+  font-size: 1.125rem;
+  line-height: 2;
+  color: #383838;
 }
 
-/* Deep selectors for styling v-html content */
 .post-content :deep(p) {
-  margin-bottom: 1.5em;
+  margin-bottom: 1.75em;
 }
 
 .post-content :deep(h2),
 .post-content :deep(h3) {
   font-weight: 700;
-  margin-top: 3rem;
-  margin-bottom: 1.5rem;
-  line-height: 1.4;
+  color: #0c0c0c;
+  margin-top: 2.5em;
+  margin-bottom: 1em;
+  line-height: 1.5;
 }
 
 .post-content :deep(a) {
-  color: #0a72cc;
+  color: #c30000; /* Zoomit's red link color */
   text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.2s;
 }
 
 .post-content :deep(a:hover) {
-  border-color: #0a72cc;
+  text-decoration: underline;
 }
 
 .post-content :deep(img),
 .post-content :deep(figure) {
   max-width: 100%;
   height: auto;
-  margin: 2rem 0;
-  border-radius: 8px;
+  margin: 32px 0;
+  border-radius: 12px;
+  display: block;
+}
+
+.post-content :deep(figcaption) {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #7b7b7b;
+  margin-top: -20px;
+  margin-bottom: 32px;
 }
 
 .post-content :deep(blockquote) {
-  margin: 2rem 0;
-  padding: 1rem 1.5rem;
-  border-right: 4px solid #0a72cc;
-  background-color: #f8f9fa;
+  margin: 32px 0;
+  padding: 16px 24px;
+  border-right: 3px solid #c30000;
+  background-color: #f9f9f9;
   font-style: italic;
-  color: #555;
+  color: #383838;
 }
 
-/* Responsive adjustments for smaller screens */
+.post-content :deep(ul),
+.post-content :deep(ol) {
+  padding-right: 20px;
+  margin-bottom: 1.75em;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .post-header h1 {
-    font-size: 2rem;
+  .blog-post {
+    margin: 16px auto;
+  }
+  .post-title {
+    font-size: 1.75rem;
   }
   .post-content {
-    font-size: 1rem; /* ~16px */
+    font-size: 1rem;
+    line-height: 1.9;
   }
 }
 </style>
