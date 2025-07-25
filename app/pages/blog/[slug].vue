@@ -8,6 +8,12 @@ const { data, pending, error } = await useFetch(
   `/api/post/${encodeURIComponent(slug)}`
 )
 
+useHead(() => ({
+  title: data.value?.post?.title
+    ? `${data.value.post.title} - DigiFynn`
+    : 'Blog Post - DigiFynn'
+}))
+
 // A helper to format the date
 const formattedDate = computed(() => {
   if (data.value?.post.date) {
