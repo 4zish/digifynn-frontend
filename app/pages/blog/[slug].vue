@@ -41,7 +41,7 @@ const formattedDate = computed(() => {
 </template>
 
 <style scoped>
-/* Base styles inspired by Zoomit */
+/* Base styles */
 .blog-post {
   font-family: 'Vazirmatn', sans-serif;
   direction: rtl; /* Crucial for Persian content */
@@ -112,7 +112,7 @@ const formattedDate = computed(() => {
 }
 
 .post-content :deep(a) {
-  color: #c30000; /* Zoomit's red link color */
+  color: #c30000;
   text-decoration: none;
 }
 
