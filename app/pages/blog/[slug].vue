@@ -2,7 +2,11 @@
 const route = useRoute()
 const slug = route.params.slug
 
-const { data, pending, error } = await useFetch(`/api/post/${slug}`)
+// Use encodeURIComponent in case the slug contains characters that
+// need to be safely encoded when used in a URL
+const { data, pending, error } = await useFetch(
+  `/api/post/${encodeURIComponent(slug)}`
+)
 
 // A helper to format the date
 const formattedDate = computed(() => {
