@@ -30,7 +30,7 @@ const formattedDate = computed(() => {
         </div>
         <h1 class="post-title" v-html="data.post.title"></h1>
         <div class="post-meta">
-          <span>نویسنده: {{ data.post.author.node.name }}</span>
+          <span>نویسنده: دیجی‌فاین</span>
           <span> | </span>
           <span>{{ formattedDate }}</span>
         </div>
