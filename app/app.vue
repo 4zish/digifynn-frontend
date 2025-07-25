@@ -1,24 +1,21 @@
-// app/app.vue
 <template>
   <div>
-    <header>
-      <nav>
-        <NuxtLink to="/">Home</NuxtLink>
-        <NuxtLink to="/blog">Blog</NuxtLink>
-      </nav>
-    </header>
-    <main>
+    <TheHeader />
+    
+    <main class="main-content">
       <NuxtPage />
     </main>
   </div>
 </template>
 
 <style>
-/* Basic styling for navigation */
-nav {
-  display: flex;
-  gap: 1rem;
+/* Add some global styles to prevent content from touching the header */
+body {
+  margin: 0;
+  background-color: #f9f9f9;
+}
+
+.main-content {
   padding: 1rem;
-  border-bottom: 1px solid #ccc;
 }
 </style>
