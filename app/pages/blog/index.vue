@@ -1,4 +1,4 @@
-// app/pages/blog.vue
+// app/pages/blog/index.vue
 <script setup lang="ts">
 const { data } = await useFetch('/api/posts')
 </script>
