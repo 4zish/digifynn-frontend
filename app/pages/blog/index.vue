@@ -1,6 +1,10 @@
 // app/pages/blog/index.vue
 <script setup lang="ts">
 const { data } = await useFetch('/api/posts')
+
+useHead({
+  title: 'Blog - DigiFynn'
+})
 </script>
 
 <template>
