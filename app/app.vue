@@ -1,10 +1,12 @@
 <template>
   <div>
     <TheHeader />
-    
+
     <main class="main-content">
       <NuxtPage />
     </main>
+
+    <TheFooter />
   </div>
 </template>
 
