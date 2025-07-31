@@ -1,131 +1,424 @@
-<template>
-  <header class="main-header">
-    <div class="header-container">
-      <div class="header-left">
-        <button class="menu-button">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-        </button>
-        <div class="logo">
-          <NuxtLink to="/">DIGIFYNN</NuxtLink>
-        </div>
-        <nav class="main-nav">
-          <NuxtLink to="/blog">Blog</NuxtLink>
-          <a href="#">Reviews</a>
-          <a href="#">Videos</a>
-          <a href="#">About</a>
-        </nav>
-      </div>
+<script setup lang="ts">
+import { ref, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 
-      <div class="header-right">
-        <div class="search-container">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <span>Search...</span>
+const router = useRouter()
+const searchQuery = ref('')
+const isSearchOpen = ref(false)
+const isMobileMenuOpen = ref(false)
+
+const handleSearch = () => {
+  if (searchQuery.value.trim()) {
+    router.push({
+      path: '/search',
+      query: { q: searchQuery.value.trim() }
+    })
+    searchQuery.value = ''
+    isSearchOpen.value = false
+  }
+}
+
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Enter') {
+    handleSearch()
+  } else if (event.key === 'Escape') {
+    isSearchOpen.value = false
+    searchQuery.value = ''
+  }
+}
+
+const toggleSearch = () => {
+  isSearchOpen.value = !isSearchOpen.value
+  if (isSearchOpen.value) {
+    nextTick(() => {
+      const searchInput = document.getElementById('search-input')
+      searchInput?.focus()
+    })
+  }
+}
+
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
+}
+
+// Categories from Digiato
+const categories = [
+  { name: 'تکنولوژی', href: '/category/technology' },
+  { name: 'خودرو', href: '/category/automotive' },
+  { name: 'نقد و بررسی', href: '/category/reviews' },
+  { name: 'ویدیو', href: '/category/video' },
+  { name: 'آموزش', href: '/category/tutorial' },
+  { name: 'راهنمای خرید', href: '/category/buying-guide' }
+]
+</script>
+
+<template>
+  <header class="digiato-header">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="container">
+        <div class="top-bar-content">
+          <div class="logo-section">
+            <NuxtLink to="/" class="logo">
+              <span class="logo-text">دیجی‌فاین</span>
+            </NuxtLink>
+          </div>
+          
+          <div class="search-section">
+            <div class="search-container">
+              <input
+                id="search-input"
+                v-model="searchQuery"
+                type="text"
+                placeholder="جستجو در سایت..."
+                class="search-input"
+                @keydown="handleKeydown"
+              />
+              <button 
+                class="search-button"
+                @click="handleSearch"
+                aria-label="جستجو"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="mobile-menu-toggle">
+            <button 
+              class="mobile-menu-button"
+              @click="toggleMobileMenu"
+              aria-label="منوی موبایل"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+              </svg>
+            </button>
+          </div>
         </div>
-        <a href="#" class="login-button">Login / Register</a>
+      </div>
+    </div>
+
+    <!-- Main Navigation -->
+    <nav class="main-navigation">
+      <div class="container">
+        <div class="nav-content">
+          <ul class="nav-menu">
+            <li v-for="category in categories" :key="category.name" class="nav-item">
+              <NuxtLink :to="category.href" class="nav-link">
+                {{ category.name }}
+              </NuxtLink>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div v-if="isMobileMenuOpen" class="mobile-menu">
+      <div class="mobile-menu-content">
+        <div class="mobile-search">
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="جستجو در سایت..."
+            class="mobile-search-input"
+            @keydown="handleKeydown"
+          />
+          <button 
+            class="mobile-search-button"
+            @click="handleSearch"
+          >
+            جستجو
+          </button>
+        </div>
+        
+        <ul class="mobile-nav-menu">
+          <li v-for="category in categories" :key="category.name" class="mobile-nav-item">
+            <NuxtLink 
+              :to="category.href" 
+              class="mobile-nav-link"
+              @click="isMobileMenuOpen = false"
+            >
+              {{ category.name }}
+            </NuxtLink>
+          </li>
+        </ul>
       </div>
     </div>
   </header>
 </template>
 
 <style scoped>
-.main-header {
-  background-color: #fff;
-  border-bottom: 1px solid #e0e0e0;
-  padding: 0 24px;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  font-family: 'Vazirmatn', sans-serif;
+.digiato-header {
+  background-color: #1a1a1a;
+  color: #ffffff;
+  font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.header-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
+.top-bar {
+  background-color: #1a1a1a;
+  border-bottom: 1px solid #333;
+  padding: 12px 0;
+}
+
+.container {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 20px;
 }
 
-.header-left, .header-right {
+.top-bar-content {
   display: flex;
   align-items: center;
-  gap: 24px;
+  justify-content: space-between;
 }
 
-.menu-button {
-  display: none; /* Hidden on desktop */
-  background: none;
-  border: none;
-  cursor: pointer;
+.logo-section {
+  flex-shrink: 0;
 }
 
 .logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.logo a {
   text-decoration: none;
-  color: #c30000; /* Zoomit red */
+  color: #ffffff;
 }
 
-.main-nav {
-  display: flex;
-  gap: 20px;
+.logo-text {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ff4444;
 }
 
-.main-nav a {
-  text-decoration: none;
-  color: #333;
-  font-weight: 500;
-  font-size: 0.95rem;
-  transition: color 0.2s;
-}
-
-.main-nav a:hover {
-  color: #c30000;
+.search-section {
+  flex: 1;
+  max-width: 500px;
+  margin: 0 40px;
 }
 
 .search-container {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: #7b7b7b;
+  background-color: #333;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #555;
+}
+
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 12px 16px;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: #999;
+}
+
+.search-button {
+  background-color: #ff4444;
+  border: none;
+  padding: 12px 16px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-button:hover {
+  background-color: #e63939;
+}
+
+.mobile-menu-toggle {
+  display: none;
+}
+
+.main-navigation {
+  background-color: #222;
+  padding: 0;
+}
+
+.nav-content {
+  display: flex;
+  align-items: center;
+}
+
+.nav-menu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+}
+
+.nav-item {
+  flex: 1;
+}
+
+.nav-link {
+  display: block;
+  padding: 16px 20px;
+  color: #ffffff;
+  text-decoration: none;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+  border-bottom: 3px solid transparent;
+}
+
+.nav-link:hover {
+  background-color: #333;
+  color: #ff4444;
+  border-bottom-color: #ff4444;
+}
+
+.nav-link.router-link-active {
+  color: #ff4444;
+  border-bottom-color: #ff4444;
+}
+
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 1001;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 100px;
+}
+
+.mobile-menu-content {
+  background-color: #1a1a1a;
+  border-radius: 12px;
+  padding: 24px;
+  width: 90%;
+  max-width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.mobile-search {
+  margin-bottom: 24px;
+}
+
+.mobile-search-input {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: #333;
+  border: 1px solid #555;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.mobile-search-input::placeholder {
+  color: #999;
+}
+
+.mobile-search-button {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: #ff4444;
+  border: none;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 14px;
   cursor: pointer;
 }
 
-.login-button {
-  background-color: #f2f2f2;
-  color: #333;
-  padding: 8px 16px;
-  border-radius: 8px;
+.mobile-nav-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mobile-nav-item {
+  border-bottom: 1px solid #333;
+}
+
+.mobile-nav-item:last-child {
+  border-bottom: none;
+}
+
+.mobile-nav-link {
+  display: block;
+  padding: 16px 0;
+  color: #ffffff;
   text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: background-color 0.2s;
+  font-size: 16px;
+  transition: color 0.2s;
 }
 
-.login-button:hover {
-  background-color: #e0e0e0;
+.mobile-nav-link:hover {
+  color: #ff4444;
 }
 
-/* Responsive styles for mobile */
+/* Responsive Design */
 @media (max-width: 768px) {
-  .main-nav, .login-button {
+  .search-section {
     display: none;
   }
-  .menu-button {
+  
+  .mobile-menu-toggle {
     display: block;
   }
-  .header-container {
-    justify-content: flex-start;
+  
+  .nav-menu {
+    display: none;
   }
-  .header-right {
-    margin-left: auto;
+  
+  .top-bar-content {
+    gap: 16px;
   }
-  .search-container span {
-    display: none; /* Hide search text on mobile */
+  
+  .logo-text {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 16px;
+  }
+  
+  .logo-text {
+    font-size: 18px;
+  }
+  
+  .mobile-menu-content {
+    width: 95%;
+    padding: 20px;
+  }
+}
+
+/* Animation for mobile menu */
+.mobile-menu {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 </style>
