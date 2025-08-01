@@ -332,7 +332,7 @@ export default defineNuxtConfig({
   // Module configuration
   modules: [
     '@nuxtjs/robots',
-    '@nuxtjs/sitemap',
+    // '@nuxtjs/sitemap', // Comment this out temporarily
     '@nuxt/image'
   ],
 
@@ -348,9 +348,16 @@ export default defineNuxtConfig({
     ]
   },
 
-  // Sitemap configuration - Fixed (remove hardcoded URLs)
+  // Sitemap configuration - Updated
   sitemap: {
-    exclude: ['/api/**', '/admin/**', '/private/**', '/_nuxt/**', '/.well-known/**']
+    exclude: ['/api/**', '/admin/**', '/private/**', '/_nuxt/**', '/.well-known/**'],
+    // Add explicit configuration to prevent conflicts
+    urls: [],
+    sitemaps: {
+      main: {
+        exclude: ['/api/**', '/admin/**', '/private/**', '/_nuxt/**', '/.well-known/**']
+      }
+    }
   },
 
   // Router configuration to prevent asset routing issues
