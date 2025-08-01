@@ -27,7 +27,7 @@ vi.mock('../../utils/rateLimit', () => ({
 
 describe('Posts API', () => {
   let mockRequest: any
-  let mockResponse: any
+  // Removed unused mockResponse variable
 
   beforeEach(() => {
     vi.clearAllMocks()

@@ -70,30 +70,30 @@ export class RateLimiter {
 
 // Storage interface for rate limiting
 export interface RateLimitStorage {
-  get(key: string): Promise<RateLimitRecord | null>
-  set(key: string, record: RateLimitRecord, ttlMs: number): Promise<void>
-  delete(key: string): Promise<void>
+  get(_key: string): Promise<RateLimitRecord | null>
+  set(_key: string, _record: RateLimitRecord, _ttlMs: number): Promise<void>
+  delete(_key: string): Promise<void>
 }
 
 // In-memory storage for development
 export class MemoryRateLimitStorage implements RateLimitStorage {
   private store = new Map<string, RateLimitRecord>()
 
-  async get(key: string): Promise<RateLimitRecord | null> {
-    return this.store.get(key) || null
+  async get(_key: string): Promise<RateLimitRecord | null> {
+    return this.store.get(_key) || null
   }
 
-  async set(key: string, record: RateLimitRecord, ttlMs: number): Promise<void> {
-    this.store.set(key, record)
+  async set(_key: string, _record: RateLimitRecord, _ttlMs: number): Promise<void> {
+    this.store.set(_key, _record)
     
     // Auto-cleanup expired records
     setTimeout(() => {
-      this.store.delete(key)
-    }, ttlMs)
+      this.store.delete(_key)
+    }, _ttlMs)
   }
 
-  async delete(key: string): Promise<void> {
-    this.store.delete(key)
+  async delete(_key: string): Promise<void> {
+    this.store.delete(_key)
   }
 }
 

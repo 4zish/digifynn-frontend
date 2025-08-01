@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -27,21 +27,13 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 }
 
-const toggleSearch = () => {
-  isSearchOpen.value = !isSearchOpen.value
-  if (isSearchOpen.value) {
-    nextTick(() => {
-      const searchInput = document.getElementById('search-input')
-      searchInput?.focus()
-    })
-  }
-}
+// Search toggle function - removed unused variable
 
 const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value
 }
 
-// Categories from Digiato
+// Categories from digifynn
 const categories = [
   { name: 'تکنولوژی', href: '/category/technology' },
   { name: 'خودرو', href: '/category/automotive' },
@@ -53,13 +45,16 @@ const categories = [
 </script>
 
 <template>
-  <header class="digiato-header">
+  <header class="digifynn-header">
     <!-- Top Bar -->
     <div class="top-bar">
       <div class="container">
         <div class="top-bar-content">
           <div class="logo-section">
-            <NuxtLink to="/" class="logo">
+            <NuxtLink
+              to="/"
+              class="logo"
+            >
               <span class="logo-text">دیجی‌فاین</span>
             </NuxtLink>
           </div>
@@ -73,14 +68,19 @@ const categories = [
                 placeholder="جستجو در سایت..."
                 class="search-input"
                 @keydown="handleKeydown"
-              />
+              >
               <button 
                 class="search-button"
-                @click="handleSearch"
                 aria-label="جستجو"
+                @click="handleSearch"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
                 </svg>
               </button>
             </div>
@@ -89,11 +89,16 @@ const categories = [
           <div class="mobile-menu-toggle">
             <button 
               class="mobile-menu-button"
-              @click="toggleMobileMenu"
               aria-label="منوی موبایل"
+              @click="toggleMobileMenu"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
               </svg>
             </button>
           </div>
@@ -106,8 +111,15 @@ const categories = [
       <div class="container">
         <div class="nav-content">
           <ul class="nav-menu">
-            <li v-for="category in categories" :key="category.name" class="nav-item">
-              <NuxtLink :to="category.href" class="nav-link">
+            <li
+              v-for="category in categories"
+              :key="category.name"
+              class="nav-item"
+            >
+              <NuxtLink
+                :to="category.href"
+                class="nav-link"
+              >
                 {{ category.name }}
               </NuxtLink>
             </li>
@@ -117,7 +129,10 @@ const categories = [
     </nav>
 
     <!-- Mobile Menu -->
-    <div v-if="isMobileMenuOpen" class="mobile-menu">
+    <div
+      v-if="isMobileMenuOpen"
+      class="mobile-menu"
+    >
       <div class="mobile-menu-content">
         <div class="mobile-search">
           <input
@@ -126,7 +141,7 @@ const categories = [
             placeholder="جستجو در سایت..."
             class="mobile-search-input"
             @keydown="handleKeydown"
-          />
+          >
           <button 
             class="mobile-search-button"
             @click="handleSearch"
@@ -136,7 +151,11 @@ const categories = [
         </div>
         
         <ul class="mobile-nav-menu">
-          <li v-for="category in categories" :key="category.name" class="mobile-nav-item">
+          <li
+            v-for="category in categories"
+            :key="category.name"
+            class="mobile-nav-item"
+          >
             <NuxtLink 
               :to="category.href" 
               class="mobile-nav-link"
@@ -152,7 +171,7 @@ const categories = [
 </template>
 
 <style scoped>
-.digiato-header {
+.digifynn-header {
   background-color: #1a1a1a;
   color: #ffffff;
   font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

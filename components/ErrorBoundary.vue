@@ -3,6 +3,7 @@ import { ref, onErrorCaptured } from 'vue'
 
 const error = ref<Error | null>(null)
 const errorInfo = ref<any>(null)
+const isDev = import.meta.env.DEV
 
 onErrorCaptured((err: Error, instance: any, info: string) => {
   error.value = err
@@ -48,7 +49,7 @@ const navigateToHome = () => {
       <p>متأسفانه مشکلی در بارگذاری این بخش پیش آمده است.</p>
       
       <div
-        v-if="process.env.NODE_ENV === 'development'"
+        v-if="isDev"
         class="error-details"
       >
         <details>

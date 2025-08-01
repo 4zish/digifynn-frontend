@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Post } from '../../types'
-import { validateSearchQuery, sanitizeSearchQuery } from '../../utils/validation'
+import type { Post } from '~/types'
+import { validateSearchQuery, sanitizeSearchQuery } from '~/utils/validation'
 
 const route = useRoute()
 const searchQuery = ref('')
@@ -112,9 +112,15 @@ const breadcrumbs = computed(() => [
     </section>
 
     <!-- Breadcrumb -->
-    <nav class="breadcrumb-digifynn" aria-label="مسیر ناوبری">
+    <nav
+      class="breadcrumb-digifynn"
+      aria-label="مسیر ناوبری"
+    >
       <div class="breadcrumb-container">
-        <template v-for="(crumb, index) in breadcrumbs" :key="index">
+        <template
+          v-for="(crumb, index) in breadcrumbs"
+          :key="index"
+        >
           <NuxtLink 
             :to="crumb.path"
             class="breadcrumb-item breadcrumb-link"

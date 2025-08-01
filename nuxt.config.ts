@@ -6,8 +6,15 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // Private keys (only available on server-side)
     wpGraphqlEndpoint: process.env.WP_GRAPHQL_ENDPOINT || 'https://cms.digifynn.com/graphql',
-    jwtSecret: process.env.JWT_SECRET || 'your-super-secret-key-change-in-production',
-    rateLimitSecret: process.env.RATE_LIMIT_SECRET || 'rate-limit-secret',
+    jwtSecret: process.env.JWT_SECRET || '',
+    rateLimitSecret: process.env.RATE_LIMIT_SECRET || '',
+    redisUrl: process.env.REDIS_URL || '',
+    sentryDsn: process.env.SENTRY_DSN || '',
+    stripeSecretKey: process.env.STRIPE_SECRET_KEY || '',
+    awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+    awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+    awsRegion: process.env.AWS_REGION || '',
+    cloudinaryUrl: process.env.CLOUDINARY_URL || '',
     
     // Public keys (exposed to client-side)
     public: {
@@ -17,41 +24,51 @@ export default defineNuxtConfig({
       environment: process.env.NODE_ENV || 'development',
       version: process.env.npm_package_version || '1.0.0',
       apiBaseUrl: process.env.API_BASE_URL || 'https://api.digifynn.com',
-      siteUrl: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://digifynn.com'
+      siteUrl: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://digifynn.com',
+      sentryPublicDsn: process.env.SENTRY_PUBLIC_DSN || '',
+      stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY || '',
+      recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY || ''
     }
   },
 
   // Performance optimizations
   experimental: {
     payloadExtraction: false,
-    // inlineSSRStyles: false, // Removed - not available in Nuxt 4
     renderJsonPayloads: true,
     componentIslands: true,
-    // treeshakeClientOnly: true, // Removed - not available in Nuxt 4
     asyncContext: true,
     crossOriginPrefetch: true,
-    viewTransition: true
+    viewTransition: true,
+    asyncEntry: true
   },
 
   // TypeScript configuration
   typescript: {
     strict: true,
     typeCheck: true,
-    shim: false
+    shim: false,
+    tsConfig: {
+      compilerOptions: {
+        strict: true,
+        noUnusedLocals: true,
+        noUnusedParameters: true,
+        noImplicitReturns: true,
+        noFallthroughCasesInSwitch: true,
+        noUncheckedIndexedAccess: true
+      }
+    }
   },
 
-  // Path aliases – use absolute paths so they resolve correctly on Windows
+  // Path aliases – simplified to prevent conflicts
   alias: {
     '~': fileURLToPath(new URL('.', import.meta.url)),
     '@': fileURLToPath(new URL('.', import.meta.url)),
     '~/': fileURLToPath(new URL('.', import.meta.url)),
     '@/': fileURLToPath(new URL('.', import.meta.url)),
-
     '~utils': fileURLToPath(new URL('./utils', import.meta.url)),
     '~components': fileURLToPath(new URL('./components', import.meta.url)),
     '~composables': fileURLToPath(new URL('./composables', import.meta.url)),
-    '~types': fileURLToPath(new URL('./types', import.meta.url)),
-    '/app.vue': fileURLToPath(new URL('./app.vue', import.meta.url))
+    '~types': fileURLToPath(new URL('./types', import.meta.url))
   },
 
   // App configuration
@@ -86,7 +103,13 @@ export default defineNuxtConfig({
         { property: 'og:locale', content: 'fa_IR' },
         { property: 'twitter:card', content: 'summary_large_image' },
         { property: 'twitter:site', content: '@digifynn' },
-        { property: 'twitter:creator', content: '@digifynn' }
+        { property: 'twitter:creator', content: '@digifynn' },
+        // Security headers
+        { 'http-equiv': 'X-Content-Type-Options', content: 'nosniff' },
+        { 'http-equiv': 'X-Frame-Options', content: 'DENY' },
+        { 'http-equiv': 'X-XSS-Protection', content: '1; mode=block' },
+        { 'http-equiv': 'Referrer-Policy', content: 'strict-origin-when-cross-origin' },
+        { 'http-equiv': 'Permissions-Policy', content: 'camera=(), microphone=(), geolocation=()' }
       ],
       script: [
         // Service Worker registration
@@ -143,9 +166,7 @@ export default defineNuxtConfig({
         }
       ]
     },
-    // PWA configuration
-    baseURL: process.env.NODE_ENV === 'development' ? '/' : (process.env.BASE_URL || 'https://digifynn.com'),
-    cdnURL: process.env.CDN_URL || '',
+    // Remove baseURL to prevent conflicts with Vite
     keepalive: true,
     pageTransition: {
       name: 'page',
@@ -160,19 +181,34 @@ export default defineNuxtConfig({
       '/api/posts': { 
         cache: { maxAge: 300 },
         headers: {
-          'Cache-Control': 'public, max-age=300, s-maxage=300'
+          'Cache-Control': 'public, max-age=300, s-maxage=300',
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'DENY',
+          'X-XSS-Protection': '1; mode=block',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
         }
       },
       '/api/post/**': { 
         cache: { maxAge: 600 },
         headers: {
-          'Cache-Control': 'public, max-age=600, s-maxage=600'
+          'Cache-Control': 'public, max-age=600, s-maxage=600',
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'DENY',
+          'X-XSS-Protection': '1; mode=block',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
         }
       },
       '/api/search': { 
         cache: { maxAge: 300 },
         headers: {
-          'Cache-Control': 'public, max-age=300, s-maxage=300'
+          'Cache-Control': 'public, max-age=300, s-maxage=300',
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'DENY',
+          'X-XSS-Protection': '1; mode=block',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
         }
       },
       '/api/analytics': { 
@@ -180,64 +216,82 @@ export default defineNuxtConfig({
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type'
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'DENY',
+          'X-XSS-Protection': '1; mode=block',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
         }
       },
       '/blog/**': { 
-        prerender: false, // Disable prerendering to avoid 404 errors during build
+        prerender: false,
         headers: {
-          'Cache-Control': 'public, max-age=3600, s-maxage=3600'
+          'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'DENY',
+          'X-XSS-Protection': '1; mode=block',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
         }
       },
       '/': { 
-        prerender: false, // Temporarily disable prerendering
+        prerender: false,
         headers: {
-          'Cache-Control': 'public, max-age=1800, s-maxage=1800'
+          'Cache-Control': 'public, max-age=1800, s-maxage=1800',
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'DENY',
+          'X-XSS-Protection': '1; mode=block',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
         }
       },
       '/search': { 
         ssr: true,
         headers: {
-          'Cache-Control': 'public, max-age=300, s-maxage=300'
+          'Cache-Control': 'public, max-age=300, s-maxage=300',
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'DENY',
+          'X-XSS-Protection': '1; mode=block',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
         }
       },
       '/static/**': {
         headers: {
-          'Cache-Control': 'public, max-age=31536000, immutable'
+          'Cache-Control': 'public, max-age=31536000, immutable',
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'DENY',
+          'X-XSS-Protection': '1; mode=block',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
         }
       },
       '/images/**': {
+        headers: {
+          'Cache-Control': 'public, max-age=31536000, immutable',
+          'X-Content-Type-Options': 'nosniff',
+          'X-Frame-Options': 'DENY',
+          'X-XSS-Protection': '1; mode=block',
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          'Permissions-Policy': 'camera=(), microphone=(), geolocation=()'
+        }
+      },
+      // Handle asset requests properly
+      '/_nuxt/**': { 
+        headers: {
+          'Cache-Control': 'public, max-age=31536000, immutable',
+          'X-Content-Type-Options': 'nosniff'
+        }
+      },
+      
+      // Handle static assets
+      '/assets/**': {
         headers: {
           'Cache-Control': 'public, max-age=31536000, immutable'
         }
       }
     },
-    // Security headers (removed - not available in Nuxt 4 nitro config)
-    // TODO: Move security headers to server middleware or runtime config
-    // headers: {
-    //   'X-Content-Type-Options': 'nosniff',
-    //   'X-Frame-Options': 'DENY',
-    //   'X-XSS-Protection': '1; mode=block',
-    //   'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
-    //   'Content-Security-Policy': [
-    //     "default-src 'self'",
-    //     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google-analytics.com https://www.googletagmanager.com",
-    //     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    //     "font-src 'self' https://fonts.gstatic.com",
-    //     "img-src 'self' data: https: blob: https://cms.digifynn.com",
-    //     "media-src 'self' https:",
-    //     "connect-src 'self' https://cms.digifynn.com https://www.google-analytics.com https://analytics.google.com",
-    //     "frame-ancestors 'none'",
-    //     "base-uri 'self'",
-    //     "form-action 'self'",
-    //     "upgrade-insecure-requests"
-    //   ].join('; '),
-    //   'Referrer-Policy': 'strict-origin-when-cross-origin',
-    //   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()',
-    //   'Cross-Origin-Embedder-Policy': 'require-corp',
-    //   'Cross-Origin-Opener-Policy': 'same-origin',
-    //   'Cross-Origin-Resource-Policy': 'same-origin'
-    // },
     // Compression
     compressPublicAssets: {
       gzip: true,
@@ -253,21 +307,17 @@ export default defineNuxtConfig({
   components: {
     global: true,
     dirs: ['~/components']
-    // dts: true // Removed - not available in Nuxt 4
   },
 
   // Auto-import configuration
   imports: {
     autoImport: true,
-    // Global imports
     global: true,
-    // Presets
     presets: [
       {
         from: 'vue',
         imports: ['ref', 'computed', 'watch', 'onMounted', 'onUnmounted', 'nextTick']
       },
-      // Removed vue-router imports as Nuxt provides these automatically
       {
         from: '~/composables',
         imports: ['usePosts', 'useAuth', 'useComments', 'useAnalytics', 'useDateFormatter']
@@ -281,89 +331,38 @@ export default defineNuxtConfig({
 
   // Module configuration
   modules: [
-    // '@nuxt/image', // Temporarily removed due to compatibility issue with Nuxt 4
     '@nuxtjs/robots',
-    '@nuxtjs/sitemap'
+    '@nuxtjs/sitemap',
+    '@nuxt/image'
   ],
 
-  // Image optimization (disabled temporarily due to @nuxt/image compatibility issue)
-  // image: {
-  //   provider: 'ipx',
-  //   quality: 85,
-  //   format: ['webp', 'avif', 'jpeg'],
-  //   screens: {
-  //     xs: 320,
-  //     sm: 640,
-  //     md: 768,
-  //     lg: 1024,
-  //     xl: 1280,
-  //     xxl: 1536
-  //   },
-  //   presets: {
-  //     avatar: {
-  //       modifiers: {
-  //         format: 'webp',
-  //         width: 50,
-  //         height: 50,
-  //         quality: 80
-  //       }
-  //     },
-  //     thumbnail: {
-  //       modifiers: {
-  //         format: 'webp',
-  //         width: 300,
-  //         height: 200,
-  //         quality: 85
-  //       }
-  //     },
-  //     hero: {
-  //       modifiers: {
-  //         format: 'webp',
-  //         width: 1200,
-  //         height: 600,
-  //         quality: 90
-  //       }
-  //     }
-  //   }
-  // },
-
-  // Robots configuration
+  // Robots configuration - Fixed
   robots: {
-    robotsTxt: false, // Disable robots.txt generation to avoid base URL error
+    robotsTxt: false,
     groups: [
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/admin/', '/private/']
+        disallow: ['/api/', '/admin/', '/private/', '/_nuxt/', '/.well-known/']
       }
     ]
   },
 
-  // Sitemap configuration
+  // Sitemap configuration - Fixed (remove hardcoded URLs)
   sitemap: {
-    // siteUrl: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://digifynn.com', // Removed - not available in this version
-    exclude: ['/api/**', '/admin/**', '/private/**']
-    // routes: async () => { // Removed - not available in this version
-    //   // Dynamic routes for blog posts
-    //   return [
-    //     '/',
-    //     '/blog',
-    //     '/search',
-    //     '/category/technology',
-    //     '/category/automotive',
-    //     '/category/reviews',
-    //     '/category/video',
-    //     '/category/tutorial',
-    //     '/category/buying-guide'
-    //   ]
-    // }
+    exclude: ['/api/**', '/admin/**', '/private/**', '/_nuxt/**', '/.well-known/**']
+  },
+
+  // Router configuration to prevent asset routing issues
+  router: {
+    options: {
+      strict: false
+    }
   },
 
   // Build optimization
   build: {
-    transpile: ['graphql-request', 'bcryptjs', 'jsonwebtoken']
-    // treeshake: true, // Removed - not available in Nuxt 4
-    // sourcemap: process.env.NODE_ENV === 'development' // Removed - not available in Nuxt 4
+    transpile: ['graphql-request']
   },
 
   // Vite configuration for better performance
@@ -374,21 +373,11 @@ export default defineNuxtConfig({
       }
     },
     build: {
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            vendor: ['vue', 'vue-router'],
-            graphql: ['graphql-request'],
-            utils: ['bcryptjs', 'jsonwebtoken']
-            // ui: ['@nuxt/image'] // Removed due to @nuxt/image compatibility issue
-          }
-        }
-      },
-      // Chunk size warnings
-      chunkSizeWarningLimit: 1000
+      chunkSizeWarningLimit: 1000,
+      target: 'es2020'
     },
     optimizeDeps: {
-      include: ['graphql-request', 'bcryptjs', 'jsonwebtoken']
+      include: ['graphql-request', 'vue', 'vue-router']
     },
     server: {
       fs: {
@@ -412,7 +401,9 @@ export default defineNuxtConfig({
     define: {
       __VUE_OPTIONS_API__: false,
       __VUE_PROD_DEVTOOLS__: false
-    }
+    },
+    // Ensure proper asset handling
+    assetsInclude: ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.gif', '**/*.svg', '**/*.ico', '**/*.webp']
   },
 
   // Development server configuration
@@ -422,12 +413,20 @@ export default defineNuxtConfig({
     url: 'http://localhost:3000'
   },
 
-  // Runtime configuration (removed - not available in Nuxt 4)
-  // runtime: {
-  //   // Enable experimental features
-  //   experimental: {
-  //     asyncContext: true,
-  //     crossOriginPrefetch: true
-  //   }
-  // }
+  // Fix development server issues
+  devtools: {
+    enabled: true
+  },
+
+  // Tailwind CSS configuration
+  css: ['~/assets/styles/tailwind.css'],
+
+  // PostCSS configuration for Tailwind - Fixed
+  postcss: {
+    plugins: {
+      tailwindcss: {},
+      autoprefixer: {}
+    }
+  }
+
 })

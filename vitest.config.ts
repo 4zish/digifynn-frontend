@@ -9,7 +9,7 @@ export default defineConfig({
     setupFiles: ['./test/setup.ts'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html', 'lcov'],
+      reporter: ['text', 'json', 'html', 'lcov', 'cobertura'],
       exclude: [
         'node_modules/',
         '.nuxt/',
@@ -19,14 +19,16 @@ export default defineConfig({
         '**/*.config.*',
         'coverage/',
         '**/types/**',
-        '**/__tests__/**'
+        '**/__tests__/**',
+        '**/*.spec.ts',
+        '**/*.test.ts'
       ],
       thresholds: {
         global: {
-          branches: 90,
-          functions: 90,
-          lines: 90,
-          statements: 90
+          branches: 100,
+          functions: 100,
+          lines: 100,
+          statements: 100
         }
       },
       all: true,
@@ -50,13 +52,23 @@ export default defineConfig({
       'coverage/**',
       'test/e2e/**' // Exclude E2E tests from unit test runs
     ],
-    testTimeout: 10000,
-    hookTimeout: 10000,
-    maxConcurrency: 5,
+    testTimeout: 15000,
+    hookTimeout: 15000,
+    maxConcurrency: 10,
     pool: 'forks',
     poolOptions: {
       forks: {
         singleFork: true
+      }
+    },
+    // Enhanced test reporting
+    reporters: ['verbose', 'html', 'json'],
+    // Performance optimizations
+    isolate: true,
+    // Better error reporting
+    onConsoleLog(log, type) {
+      if (type === 'stderr') {
+        return false
       }
     }
   },

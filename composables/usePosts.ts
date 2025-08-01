@@ -7,8 +7,8 @@ export const usePosts = () => {
       const { data, error, refresh, pending } = await useFetch<PostsResponse>('/api/posts', {
         key: 'posts',
         default: () => ({ posts: { nodes: [] } }),
-        server: false, // Disable SSR for better caching
-        lazy: true, // Enable lazy loading
+        server: true, // Enable SSR for better SEO
+        lazy: false, // Disable lazy loading for immediate data
         onResponseError({ response }) {
           console.error('Error fetching posts:', response._data)
         }
@@ -31,8 +31,8 @@ export const usePosts = () => {
       const { data, error, refresh, pending } = await useFetch<SinglePostResponse>(`/api/post/${slug}`, {
         key: `post-${slug}`,
         default: () => ({ post: null as any }),
-        server: false, // Disable SSR for better caching
-        lazy: true, // Enable lazy loading
+        server: true, // Enable SSR for better SEO
+        lazy: false, // Disable lazy loading for immediate data
         onResponseError({ response }) {
           console.error('Error fetching post:', response._data)
         }
@@ -61,8 +61,8 @@ export const usePosts = () => {
       const { data, error } = await useFetch<PostsResponse>(`/api/posts/related/${postId}?limit=${limit}`, {
         key: `related-posts-${postId}`,
         default: () => ({ posts: { nodes: [] } }),
-        server: false,
-        lazy: true
+        server: true,
+        lazy: false
       })
       return { data, error }
     } catch (err) {

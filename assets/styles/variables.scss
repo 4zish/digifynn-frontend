@@ -1,0 +1,39 @@
+// SCSS Variables for DigiFynn
+// Color palette
+$primary-color: #E4002B;
+$secondary-color: #1C1F22;
+$accent-color: #ff4444;
+
+// Typography
+$font-family-primary: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+$font-size-base: 16px;
+$line-height-base: 1.6;
+
+// Spacing
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2rem;
+$spacing-xxl: 3rem;
+
+// Breakpoints
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+
+// Border radius
+$border-radius-sm: 4px;
+$border-radius-md: 8px;
+$border-radius-lg: 12px;
+
+// Shadows
+$shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+$shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+// Transitions
+$transition-fast: 0.2s ease;
+$transition-normal: 0.3s ease;
+$transition-slow: 0.5s ease; 

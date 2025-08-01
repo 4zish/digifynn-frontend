@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { usePosts } from '../../../composables/usePosts'
-import { useDateFormatter } from '../../../composables/useDateFormatter'
-import { sanitizeHtml } from '../../../utils/validation'
-import type { PostsResponse } from '../../../types'
+import { usePosts } from '~/composables/usePosts'
+import { useDateFormatter } from '~/composables/useDateFormatter'
+import { sanitizeHtml } from '~/utils/validation'
+import type { PostsResponse } from '~/types'
 
 const route = useRoute()
 const slug = route.params.slug as string
@@ -31,13 +31,7 @@ const likesCount = ref(Math.floor(Math.random() * 100) + 10) // Mock data
 const showCommentBox = ref(false)
 const newComment = ref('')
 
-// Mock hot content
-const hotContent = ref([
-  { title: 'بهترین گوشی‌های 2025', views: '15.2K' },
-  { title: 'نقد و بررسی لپ‌تاپ جدید اپل', views: '12.8K' },
-  { title: 'آیفون 16 پرو مکس در برابر گلکسی S25', views: '11.4K' },
-  { title: 'راهنمای خرید هدفون بی‌سیم', views: '9.7K' },
-])
+// Mock hot content - removed unused variable
 
 // Social actions
 const toggleLike = () => {
@@ -113,23 +107,42 @@ const breadcrumbs = computed(() => [
       v-else-if="error"
       class="error-container"
     >
-      <div class="error-icon">⚠️</div>
+      <div class="error-icon">
+        ⚠️
+      </div>
       <h2>خطا در بارگذاری مقاله</h2>
       <p>{{ error.message || 'متأسفانه مشکلی در بارگذاری مقاله پیش آمده است.' }}</p>
       <div class="error-actions">
-        <button class="retry-button" @click="() => refresh()">تلاش مجدد</button>
-        <NuxtLink to="/blog" class="back-button">بازگشت به وبلاگ</NuxtLink>
+        <button
+          class="retry-button"
+          @click="() => refresh()"
+        >
+          تلاش مجدد
+        </button>
+        <NuxtLink
+          to="/blog"
+          class="back-button"
+        >
+          بازگشت به وبلاگ
+        </NuxtLink>
       </div>
     </div>
 
     <!-- Main Content -->
-    <div v-else-if="data?.post" class="digifynn-layout">
-
-
+    <div
+      v-else-if="data?.post"
+      class="digifynn-layout"
+    >
       <!-- Breadcrumb -->
-      <nav class="breadcrumb-digifynn" aria-label="مسیر ناوبری">
+      <nav
+        class="breadcrumb-digifynn"
+        aria-label="مسیر ناوبری"
+      >
         <div class="breadcrumb-container">
-          <template v-for="(crumb, index) in breadcrumbs" :key="index">
+          <template
+            v-for="(crumb, index) in breadcrumbs"
+            :key="index"
+          >
             <NuxtLink 
               :to="crumb.path"
               class="breadcrumb-item breadcrumb-link"
@@ -149,99 +162,168 @@ const breadcrumbs = computed(() => [
       <div class="content-layout">
         <!-- Main Article -->
         <article class="blog-post">
-        <!-- Category Path (WordPress dynamic) -->
-        <div v-if="data.post.categories?.nodes?.length" class="category-path-digifynn">
-          {{ data.post.categories.nodes.map(cat => cat.name).join('') }}
-        </div>
+          <!-- Category Path (WordPress dynamic) -->
+          <div
+            v-if="data.post.categories?.nodes?.length"
+            class="category-path-digifynn"
+          >
+            {{ data.post.categories.nodes.map(cat => cat.name).join('') }}
+          </div>
         
-        <!-- Title -->
-        <h1 class="post-title">{{ data.post.title }}</h1>
+          <!-- Title -->
+          <h1 class="post-title">
+            {{ data.post.title }}
+          </h1>
         
-        <!-- Meta Information (Dynamic from WordPress) -->
-        <div class="post-meta-digifynn">
-          {{ formatDate(data.post.date) }} - {{ formatTime(data.post.date) }}مطالعه {{ readingTime }} دقیقه
-            </div>
+          <!-- Meta Information (Dynamic from WordPress) -->
+          <div class="post-meta-digifynn">
+            {{ formatDate(data.post.date) }} - {{ formatTime(data.post.date) }}مطالعه {{ readingTime }} دقیقه
+          </div>
         
-        <!-- Author Section -->
-        <div v-if="data.post.author?.node?.name" class="author-section-digifynn">
-          <span class="author-name">{{ data.post.author.node.name }}</span>
-          <button class="follow-button-digifynn">دنبال کردن</button>
-            </div>
+          <!-- Author Section -->
+          <div
+            v-if="data.post.author?.node?.name"
+            class="author-section-digifynn"
+          >
+            <span class="author-name">{{ data.post.author.node.name }}</span>
+            <button class="follow-button-digifynn">
+              دنبال کردن
+            </button>
+          </div>
       
-      <!-- Article Content -->
+          <!-- Article Content -->
           <div class="post-content">
             <!-- WordPress Dynamic Content -->
-            <div class="wordpress-content" v-html="sanitizeHtml(data.post.content)" />
+            <div
+              class="wordpress-content"
+              v-html="sanitizeHtml(data.post.content)"
+            />
             
             <!-- Advertisement in content -->
             <div class="content-ad">
               <span>تبلیغات</span>
             </div>
-      </div>
+          </div>
       
           <!-- Social Actions -->
           <div class="social-actions">
-            <button :class="['action-button', { active: isLiked }]" @click="toggleLike">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                </svg>
+            <button
+              :class="['action-button', { active: isLiked }]"
+              @click="toggleLike"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
               لایک
               <span class="count">{{ likesCount }}</span>
-              </button>
+            </button>
             
-            <button class="action-button" @click="showCommentBox = true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
-                </svg>
+            <button
+              class="action-button"
+              @click="showCommentBox = true"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
+              </svg>
               نظرت چیه؟ارسال نظر
-              </button>
+            </button>
             
-            <button :class="['action-button', { active: isBookmarked }]" @click="toggleBookmark">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
-                </svg>
+            <button
+              :class="['action-button', { active: isBookmarked }]"
+              @click="toggleBookmark"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z" />
+              </svg>
               بوکمارک
-              </button>
+            </button>
             
             <button class="action-button">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
-                </svg>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z" />
+              </svg>
               اشتراک‌گذاری
-              </button>
-            </div>
+            </button>
+          </div>
 
           <!-- Comment Input -->
-          <div v-if="showCommentBox" class="comment-input-section">
+          <div
+            v-if="showCommentBox"
+            class="comment-input-section"
+          >
             <textarea
               v-model="newComment"
               placeholder="نظر خود را بنویسید..."
               class="comment-textarea"
             />
             <div class="comment-actions">
-              <button @click="submitComment" class="submit-comment">ارسال نظر</button>
-              <button @click="showCommentBox = false" class="cancel-comment">لغو</button>
+              <button
+                class="submit-comment"
+                @click="submitComment"
+              >
+                ارسال نظر
+              </button>
+              <button
+                class="cancel-comment"
+                @click="showCommentBox = false"
+              >
+                لغو
+              </button>
             </div>
           </div>
           
           <!-- Comments Section -->
           <div class="comments-section">
-            <h3 class="comments-title">نظرات</h3>
+            <h3 class="comments-title">
+              نظرات
+            </h3>
             <div class="comments-placeholder">
               <p>تبلیغات</p>
-          </div>
+            </div>
             <div class="comments-list">
               <!-- Comments would be displayed here -->
-              <p class="no-comments">هنوز نظری ثبت نشده است.</p>
-        </div>
+              <p class="no-comments">
+                هنوز نظری ثبت نشده است.
+              </p>
+            </div>
           </div>
           
-                    <!-- Related Articles (WordPress dynamic) -->
-          <div v-if="relatedPosts?.posts?.nodes?.length" class="related-articles-digifynn">
+          <!-- Related Articles (WordPress dynamic) -->
+          <div
+            v-if="relatedPosts?.posts?.nodes?.length"
+            class="related-articles-digifynn"
+          >
             <h3>مقاله‌های مرتبط</h3>
             <ul class="related-list">
-              <li v-for="post in relatedPosts.posts.nodes" :key="post.id" class="related-item">
-                <NuxtLink :to="`/blog/${post.slug}`" class="related-link-digifynn">
+              <li
+                v-for="post in relatedPosts.posts.nodes"
+                :key="post.id"
+                class="related-item"
+              >
+                <NuxtLink
+                  :to="`/blog/${post.slug}`"
+                  class="related-link-digifynn"
+                >
                   {{ post.title }}
                 </NuxtLink>
               </li>
@@ -250,23 +332,43 @@ const breadcrumbs = computed(() => [
           
           <!-- Article Footer (digifynn style) -->
           <div class="article-footer-digifynn">
-            <p class="footer-question">مقاله رو دوست داشتی؟</p>
+            <p class="footer-question">
+              مقاله رو دوست داشتی؟
+            </p>
             <div class="footer-actions">
-              <button :class="['footer-action-btn', { active: isLiked }]" @click="toggleLike">لایک</button>
+              <button
+                :class="['footer-action-btn', { active: isLiked }]"
+                @click="toggleLike"
+              >
+                لایک
+              </button>
               <span class="footer-text">نظرت چیه؟</span>
-              <button @click="showCommentBox = true" class="footer-action-btn">ارسال نظر</button>
-              <button :class="['footer-action-btn', { active: isBookmarked }]" @click="toggleBookmark">بوکمارک</button>
+              <button
+                class="footer-action-btn"
+                @click="showCommentBox = true"
+              >
+                ارسال نظر
+              </button>
+              <button
+                :class="['footer-action-btn', { active: isBookmarked }]"
+                @click="toggleBookmark"
+              >
+                بوکمارک
+              </button>
               <span class="footer-text">اشتراک‌گذاری</span>
+            </div>
           </div>
-        </div>
-    </article>
+        </article>
 
         <!-- Sidebar -->
         <aside class="sidebar">
           <!-- All Videos Link -->
           <div class="sidebar-section">
-            <a href="#" class="view-all-videos">مشاهده همه ویدئو‌ها</a>
-      </div>
+            <a
+              href="#"
+              class="view-all-videos"
+            >مشاهده همه ویدئو‌ها</a>
+          </div>
 
           <!-- Advertisement -->
           <div class="sidebar-section ad-section">
@@ -277,7 +379,9 @@ const breadcrumbs = computed(() => [
 
           <!-- Hot Content -->
           <div class="sidebar-section">
-            <h3 class="sidebar-title">داغ‌ترین مطالب روز</h3>
+            <h3 class="sidebar-title">
+              داغ‌ترین مطالب روز
+            </h3>
             <div class="hot-content">
               <div class="ad-placeholder-small">
                 <span>تبلیغات</span>
@@ -287,7 +391,10 @@ const breadcrumbs = computed(() => [
 
           <!-- Study Lists Section -->
           <div class="sidebar-section">
-            <a href="#" class="study-lists-link">مشاهده تمامی لیست‌های مطالعاتی</a>
+            <a
+              href="#"
+              class="study-lists-link"
+            >مشاهده تمامی لیست‌های مطالعاتی</a>
           </div>
 
           <!-- Media Play Section -->
@@ -299,27 +406,82 @@ const breadcrumbs = computed(() => [
 
           <!-- Product Recommendations -->
           <div class="sidebar-section">
-            <h3 class="sidebar-title">با چشم باز خرید کنید</h3>
-            <p class="sidebar-subtitle">دیجی‌فاین شما را برای انتخاب بهتر و خرید ارزان‌تر راهنمایی می‌کند</p>
-            <a href="#" class="products-entry-link">ورود به بخش محصولات</a>
+            <h3 class="sidebar-title">
+              با چشم باز خرید کنید
+            </h3>
+            <p class="sidebar-subtitle">
+              دیجی‌فاین شما را برای انتخاب بهتر و خرید ارزان‌تر راهنمایی می‌کند
+            </p>
+            <a
+              href="#"
+              class="products-entry-link"
+            >ورود به بخش محصولات</a>
             
             <div class="product-categories">
-              <a href="#" class="product-link">گوشی</a>
-              <a href="#" class="product-link">تبلت</a>
-              <a href="#" class="product-link">لپ‌تاپ</a>
-              <a href="#" class="product-link">تلویزیون</a>
-              <a href="#" class="product-link">ساعت هوشمند</a>
-              <a href="#" class="product-link">هدفون</a>
-              <a href="#" class="product-link">هارد</a>
-              <a href="#" class="product-link">کنسول بازی</a>
-              <a href="#" class="product-link">کارت گرافیک</a>
-              <a href="#" class="product-link">پردازنده</a>
-              <a href="#" class="product-link">مانیتور</a>
-              <a href="#" class="product-link">SSD</a>
-              <a href="#" class="product-link">دوربین‌</a>
-              <a href="#" class="product-link">پاوربانک</a>
-              <a href="#" class="product-link">شارژر</a>
-              <a href="#" class="product-link">اسپیکر</a>
+              <a
+                href="#"
+                class="product-link"
+              >گوشی</a>
+              <a
+                href="#"
+                class="product-link"
+              >تبلت</a>
+              <a
+                href="#"
+                class="product-link"
+              >لپ‌تاپ</a>
+              <a
+                href="#"
+                class="product-link"
+              >تلویزیون</a>
+              <a
+                href="#"
+                class="product-link"
+              >ساعت هوشمند</a>
+              <a
+                href="#"
+                class="product-link"
+              >هدفون</a>
+              <a
+                href="#"
+                class="product-link"
+              >هارد</a>
+              <a
+                href="#"
+                class="product-link"
+              >کنسول بازی</a>
+              <a
+                href="#"
+                class="product-link"
+              >کارت گرافیک</a>
+              <a
+                href="#"
+                class="product-link"
+              >پردازنده</a>
+              <a
+                href="#"
+                class="product-link"
+              >مانیتور</a>
+              <a
+                href="#"
+                class="product-link"
+              >SSD</a>
+              <a
+                href="#"
+                class="product-link"
+              >دوربین‌</a>
+              <a
+                href="#"
+                class="product-link"
+              >پاوربانک</a>
+              <a
+                href="#"
+                class="product-link"
+              >شارژر</a>
+              <a
+                href="#"
+                class="product-link"
+              >اسپیکر</a>
             </div>
           </div>
         </aside>
@@ -331,27 +493,82 @@ const breadcrumbs = computed(() => [
           <!-- Main Footer Content -->
           <div class="footer-main">
             <div class="footer-section">
-              <h4 class="footer-title">با چشم باز خرید کنید</h4>
-              <p class="footer-subtitle">دیجی‌فاین شما را برای انتخاب بهتر و خرید ارزان‌تر راهنمایی می‌کند</p>
-              <a href="#" class="footer-link-primary">ورود به بخش محصولات</a>
+              <h4 class="footer-title">
+                با چشم باز خرید کنید
+              </h4>
+              <p class="footer-subtitle">
+                دیجی‌فاین شما را برای انتخاب بهتر و خرید ارزان‌تر راهنمایی می‌کند
+              </p>
+              <a
+                href="#"
+                class="footer-link-primary"
+              >ورود به بخش محصولات</a>
               
               <div class="product-grid-footer">
-                <a href="#" class="product-link-footer">گوشی</a>
-                <a href="#" class="product-link-footer">تبلت</a>
-                <a href="#" class="product-link-footer">لپ‌تاپ</a>
-                <a href="#" class="product-link-footer">تلویزیون</a>
-                <a href="#" class="product-link-footer">ساعت هوشمند</a>
-                <a href="#" class="product-link-footer">هدفون</a>
-                <a href="#" class="product-link-footer">هارد</a>
-                <a href="#" class="product-link-footer">کنسول بازی</a>
-                <a href="#" class="product-link-footer">کارت گرافیک</a>
-                <a href="#" class="product-link-footer">پردازنده</a>
-                <a href="#" class="product-link-footer">مانیتور</a>
-                <a href="#" class="product-link-footer">SSD</a>
-                <a href="#" class="product-link-footer">دوربین‌</a>
-                <a href="#" class="product-link-footer">پاوربانک</a>
-                <a href="#" class="product-link-footer">شارژر</a>
-                <a href="#" class="product-link-footer">اسپیکر</a>
+                <a
+                  href="#"
+                  class="product-link-footer"
+                >گوشی</a>
+                <a
+                  href="#"
+                  class="product-link-footer"
+                >تبلت</a>
+                <a
+                  href="#"
+                  class="product-link-footer"
+                >لپ‌تاپ</a>
+                <a
+                  href="#"
+                  class="product-link-footer"
+                >تلویزیون</a>
+                <a
+                  href="#"
+                  class="product-link-footer"
+                >ساعت هوشمند</a>
+                <a
+                  href="#"
+                  class="product-link-footer"
+                >هدفون</a>
+                <a
+                  href="#"
+                  class="product-link-footer"
+                >هارد</a>
+                <a
+                  href="#"
+                  class="product-link-footer"
+                >کنسول بازی</a>
+                <a
+                  href="#"
+                  class="product-link-footer"
+                >کارت گرافیک</a>
+                <a
+                  href="#"
+                  class="product-link-footer"
+                >پردازنده</a>
+                <a
+                  href="#"
+                  class="product-link-footer"
+                >مانیتور</a>
+                <a
+                  href="#"
+                  class="product-link-footer"
+                >SSD</a>
+                <a
+                  href="#"
+                  class="product-link-footer"
+                >دوربین‌</a>
+                <a
+                  href="#"
+                  class="product-link-footer"
+                >پاوربانک</a>
+                <a
+                  href="#"
+                  class="product-link-footer"
+                >شارژر</a>
+                <a
+                  href="#"
+                  class="product-link-footer"
+                >اسپیکر</a>
               </div>
             </div>
           </div>
@@ -359,17 +576,38 @@ const breadcrumbs = computed(() => [
           <!-- Footer Links -->
           <div class="footer-links">
             <div class="footer-links-section">
-              <a href="#" class="footer-link">مرور تمامی مطالب</a>
-              <a href="#" class="footer-link">تبلیغات در دیجی‌فاین</a>
-              <a href="#" class="footer-link">تماس با ما</a>
-              <a href="#" class="footer-link">درباره ما</a>
+              <a
+                href="#"
+                class="footer-link"
+              >مرور تمامی مطالب</a>
+              <a
+                href="#"
+                class="footer-link"
+              >تبلیغات در دیجی‌فاین</a>
+              <a
+                href="#"
+                class="footer-link"
+              >تماس با ما</a>
+              <a
+                href="#"
+                class="footer-link"
+              >درباره ما</a>
             </div>
 
             <div class="footer-supporters">
               <h5>حامیان دیجی‌فاین</h5>
-              <a href="#" class="supporter-link">پارس پک | میزبانی و پشتیبانی</a>
-              <a href="#" class="supporter-link">وب رخ | حس خوب پیکسل‌ها</a>
-              <a href="#" class="supporter-link">TheForge | هسته قدرتمند دیجی‌فاین</a>
+              <a
+                href="#"
+                class="supporter-link"
+              >پارس پک | میزبانی و پشتیبانی</a>
+              <a
+                href="#"
+                class="supporter-link"
+              >وب رخ | حس خوب پیکسل‌ها</a>
+              <a
+                href="#"
+                class="supporter-link"
+              >TheForge | هسته قدرتمند دیجی‌فاین</a>
             </div>
 
             <div class="footer-family">
@@ -387,11 +625,21 @@ const breadcrumbs = computed(() => [
     </div>
 
     <!-- Not Found State -->
-    <div v-else class="not-found-container">
-      <div class="not-found-icon">📄</div>
+    <div
+      v-else
+      class="not-found-container"
+    >
+      <div class="not-found-icon">
+        📄
+      </div>
       <h2>مقاله یافت نشد</h2>
       <p>متأسفانه مقاله مورد نظر یافت نشد.</p>
-      <NuxtLink to="/blog" class="back-button">بازگشت به وبلاگ</NuxtLink>
+      <NuxtLink
+        to="/blog"
+        class="back-button"
+      >
+        بازگشت به وبلاگ
+      </NuxtLink>
     </div>
   </div>
 </template>

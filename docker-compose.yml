@@ -1,0 +1,329 @@
+version: '3.8'
+
+# =============================================================================
+# DigiFynn Docker Compose Configuration
+# =============================================================================
+
+services:
+  # =============================================================================
+  # Main Application
+  # =============================================================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: digifynn-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - HOSTNAME=0.0.0.0
+      - PORT=3000
+      - WP_GRAPHQL_ENDPOINT=${WP_GRAPHQL_ENDPOINT}
+      - JWT_SECRET=${JWT_SECRET}
+      - RATE_LIMIT_SECRET=${RATE_LIMIT_SECRET}
+      - GOOGLE_ANALYTICS_ID=${GOOGLE_ANALYTICS_ID}
+      - SENTRY_DSN=${SENTRY_DSN}
+      - SENTRY_PUBLIC_DSN=${SENTRY_PUBLIC_DSN}
+      - API_BASE_URL=${API_BASE_URL}
+      - SITE_URL=${SITE_URL}
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - digifynn-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # =============================================================================
+  # Development Application
+  # =============================================================================
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: digifynn-app-dev
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+      - HOSTNAME=0.0.0.0
+      - PORT=3000
+      - WP_GRAPHQL_ENDPOINT=${WP_GRAPHQL_ENDPOINT}
+      - JWT_SECRET=${JWT_SECRET}
+      - RATE_LIMIT_SECRET=${RATE_LIMIT_SECRET}
+      - GOOGLE_ANALYTICS_ID=${GOOGLE_ANALYTICS_ID}
+      - SENTRY_DSN=${SENTRY_DSN}
+      - SENTRY_PUBLIC_DSN=${SENTRY_PUBLIC_DSN}
+      - API_BASE_URL=${API_BASE_URL}
+      - SITE_URL=${SITE_URL}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - digifynn-network
+    profiles:
+      - development
+
+  # =============================================================================
+  # Testing Application
+  # =============================================================================
+  app-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: testing
+    container_name: digifynn-app-test
+    environment:
+      - NODE_ENV=test
+      - CI=true
+      - WP_GRAPHQL_ENDPOINT=${WP_GRAPHQL_ENDPOINT}
+      - JWT_SECRET=${JWT_SECRET}
+      - RATE_LIMIT_SECRET=${RATE_LIMIT_SECRET}
+    depends_on:
+      - redis
+      - postgres-test
+    networks:
+      - digifynn-network
+    profiles:
+      - testing
+
+  # =============================================================================
+  # Redis Cache
+  # =============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: digifynn-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+      - ./docker/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - digifynn-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # =============================================================================
+  # PostgreSQL Database
+  # =============================================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: digifynn-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=digifynn
+      - POSTGRES_USER=digifynn
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - digifynn-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U digifynn"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # =============================================================================
+  # Test PostgreSQL Database
+  # =============================================================================
+  postgres-test:
+    image: postgres:15-alpine
+    container_name: digifynn-postgres-test
+    environment:
+      - POSTGRES_DB=digifynn_test
+      - POSTGRES_USER=digifynn
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-test-data:/var/lib/postgresql/data
+    networks:
+      - digifynn-network
+    profiles:
+      - testing
+
+  # =============================================================================
+  # Nginx Reverse Proxy
+  # =============================================================================
+  nginx:
+    image: nginx:alpine
+    container_name: digifynn-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+      - nginx-logs:/var/log/nginx
+    depends_on:
+      - app
+    networks:
+      - digifynn-network
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =============================================================================
+  # Certbot for SSL Certificates
+  # =============================================================================
+  certbot:
+    image: certbot/certbot
+    container_name: digifynn-certbot
+    volumes:
+      - ./docker/nginx/ssl:/etc/letsencrypt
+      - ./docker/nginx/webroot:/var/www/html
+    command: certonly --webroot --webroot-path=/var/www/html --email ${CERTBOT_EMAIL} --agree-tos --no-eff-email -d ${DOMAIN_NAME}
+    networks:
+      - digifynn-network
+    profiles:
+      - ssl
+
+  # =============================================================================
+  # Monitoring with Prometheus
+  # =============================================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: digifynn-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - digifynn-network
+    profiles:
+      - monitoring
+
+  # =============================================================================
+  # Grafana for Visualization
+  # =============================================================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: digifynn-grafana
+    restart: unless-stopped
+    ports:
+      - "3002:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - digifynn-network
+    profiles:
+      - monitoring
+
+  # =============================================================================
+  # Elasticsearch for Logging
+  # =============================================================================
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    container_name: digifynn-elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - digifynn-network
+    profiles:
+      - logging
+
+  # =============================================================================
+  # Kibana for Log Visualization
+  # =============================================================================
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.8.0
+    container_name: digifynn-kibana
+    restart: unless-stopped
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - digifynn-network
+    profiles:
+      - logging
+
+  # =============================================================================
+  # Filebeat for Log Collection
+  # =============================================================================
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.8.0
+    container_name: digifynn-filebeat
+    user: root
+    volumes:
+      - ./docker/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/log/docker:/var/log/docker:ro
+    networks:
+      - digifynn-network
+    profiles:
+      - logging
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  redis-data:
+    driver: local
+  postgres-data:
+    driver: local
+  postgres-test-data:
+    driver: local
+  nginx-logs:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  elasticsearch-data:
+    driver: local
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  digifynn-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16 

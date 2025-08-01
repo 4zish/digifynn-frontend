@@ -41,7 +41,7 @@ describe('TheHeader Component', () => {
 
   describe('Initial State', () => {
     it('should render header with correct structure', () => {
-      expect(wrapper.find('.digiato-header').exists()).toBe(true)
+      expect(wrapper.find('.digifynn-header').exists()).toBe(true)
       expect(wrapper.find('.top-bar').exists()).toBe(true)
       expect(wrapper.find('.main-navigation').exists()).toBe(true)
     })

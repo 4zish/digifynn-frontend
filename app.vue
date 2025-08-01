@@ -50,7 +50,10 @@ useHead({
 </script>
 
 <template>
-  <div id="app" class="app-container">
+  <div
+    id="app"
+    class="app-container"
+  >
     <!-- Error Boundary for the entire application -->
     <ErrorBoundary>
       <!-- Main Header -->
@@ -68,7 +71,9 @@ useHead({
       <footer class="app-footer">
         <div class="footer-content">
           <div class="footer-section">
-            <h3 class="footer-title">دیجی‌فاین</h3>
+            <h3 class="footer-title">
+              دیجی‌فاین
+            </h3>
             <p class="footer-description">
               منبع معتبر اخبار و مقالات تکنولوژی، موبایل، کامپیوتر و گجت‌ها
             </p>
@@ -77,19 +82,47 @@ useHead({
           <div class="footer-section">
             <h4>دسته‌بندی‌ها</h4>
             <ul class="footer-links">
-              <li><NuxtLink to="/category/technology">تکنولوژی</NuxtLink></li>
-              <li><NuxtLink to="/category/automotive">خودرو</NuxtLink></li>
-              <li><NuxtLink to="/category/reviews">نقد و بررسی</NuxtLink></li>
-              <li><NuxtLink to="/category/video">ویدیو</NuxtLink></li>
+              <li>
+                <NuxtLink to="/category/technology">
+                  تکنولوژی
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/category/automotive">
+                  خودرو
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/category/reviews">
+                  نقد و بررسی
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/category/video">
+                  ویدیو
+                </NuxtLink>
+              </li>
             </ul>
           </div>
           
           <div class="footer-section">
             <h4>صفحات</h4>
             <ul class="footer-links">
-              <li><NuxtLink to="/">صفحه اصلی</NuxtLink></li>
-              <li><NuxtLink to="/blog">وبلاگ</NuxtLink></li>
-              <li><NuxtLink to="/search">جستجو</NuxtLink></li>
+              <li>
+                <NuxtLink to="/">
+                  صفحه اصلی
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/blog">
+                  وبلاگ
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/search">
+                  جستجو
+                </NuxtLink>
+              </li>
               <li><a href="#contact">تماس با ما</a></li>
             </ul>
           </div>
@@ -97,10 +130,22 @@ useHead({
           <div class="footer-section">
             <h4>شبکه‌های اجتماعی</h4>
             <div class="social-links">
-              <a href="#" aria-label="اینستاگرام">📷</a>
-              <a href="#" aria-label="تلگرام">📱</a>
-              <a href="#" aria-label="توییتر">🐦</a>
-              <a href="#" aria-label="یوتیوب">📺</a>
+              <a
+                href="#"
+                aria-label="اینستاگرام"
+              >📷</a>
+              <a
+                href="#"
+                aria-label="تلگرام"
+              >📱</a>
+              <a
+                href="#"
+                aria-label="توییتر"
+              >🐦</a>
+              <a
+                href="#"
+                aria-label="یوتیوب"
+              >📺</a>
             </div>
           </div>
         </div>

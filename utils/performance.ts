@@ -363,7 +363,7 @@ export class MemoryManager {
     if ('memory' in performance) {
       const memory = (performance as any).memory
       const usedMemory = memory.usedJSHeapSize
-      const totalMemory = memory.totalJSHeapSize
+      // Removed unused totalMemory variable
 
       return usedMemory < this.MEMORY_THRESHOLD
     }
